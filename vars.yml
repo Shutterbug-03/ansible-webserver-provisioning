@@ -1,0 +1,4 @@
+web_package: nginx
+web_user: deploy_user
+html_src: index.html
+html_dest: /var/www/html/index.html

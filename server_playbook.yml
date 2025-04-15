@@ -1,0 +1,46 @@
+---
+ - name: provision web server
+   hosts: all
+   become: true
+   vars_files:
+    -  vars.yml
+
+   tasks:
+     - name: update apt cache 
+       apt:
+         update_cache: yes
+
+     - name: install web server
+       package:
+         name: "{{ web_package }}"
+         state: present
+       tags: install
+
+     - name: ensure webserver running
+       service:
+         name: "{{ web_package }}"
+         state: started
+         enabled: true
+       tags: start
+
+     - name: copy html file
+       copy:
+         src: "{{ html_src }}"
+         dest: "{{ html_dest }}"
+         mode: 0644
+         owner: www-data
+         group: www-data
+       notify:
+         - Restart web server
+
+     - name: create system user
+       user:
+         name: "{{ web_user }}"
+         shell: /bin/bash
+         state: present
+  
+   handlers:
+    - name: Restart web server
+      service:
+        name: "{{ web_package }}"
+        state: restarted
